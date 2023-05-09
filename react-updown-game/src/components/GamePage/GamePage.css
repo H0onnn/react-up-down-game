@@ -1,0 +1,47 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 600px;
+  margin: 100px auto;
+  padding: 20px;
+  border: 5px solid #5d5b6a;
+  border-radius: 10px;
+  background-color: #efd3d7;
+  overflow: hidden; /* 스크롤 방지 */
+  font-size: 10px;
+}
+
+.input {
+  margin-top: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  width: 50%;
+}
+
+input::placeholder {
+  font-family: "Courier New", Courier, monospace;
+  text-align: center;
+}
+
+.start {
+  background-color: #4caf50;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.3s; /* 호버 효과를 부드럽게 만들기 위한 transition */
+}
+
+.start:hover {
+  background-color: #45a049; /* 호버 시 변경될 배경색 */
+}
