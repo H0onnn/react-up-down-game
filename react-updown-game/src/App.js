@@ -15,7 +15,7 @@ function App() {
 
   const [record, setRecord] = useState([]); // 사용자가 입력했던 숫자를 담을 빈 배열 생성
 
-  const [chances, setChances] = useState(7); // 사용자에게 부여되는 기회 초기값 7로 설정하여 목숨 7개로 설정
+  const [chances, setChances] = useState(7); // 사용자에게 부여되는 기회 7개로 설정
 
   const [message, setMessage] = useState(""); // 사용자가 입력한 값에 따른 메세지를 출력할 state
 

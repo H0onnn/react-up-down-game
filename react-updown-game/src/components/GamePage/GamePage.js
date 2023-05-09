@@ -58,6 +58,7 @@ function GamePage({
       }
       // 목숨 - 1
       setChances((cur) => cur - 1);
+
       // 사용자 입력 기록 배열에 입력 값 push
       // 배열이기 때문에 스프레드 연산자 사용하여 복제 후 복제된 배열 변경
       setRecord((cur) => {
@@ -65,13 +66,14 @@ function GamePage({
         newRecord.push(userNumber);
         return newRecord;
       });
+
+      // 목숨 0이면 lose 페이지로 렌더링
+      if (chances === 1) {
+        navigate("/lose");
+      }
     } else {
       // 정답이면 win 페이지로 렌더링
       navigate("/win");
-    }
-    // 목숨 0이면 lose 페이지로 렌더링
-    if (chances === 1) {
-      navigate("/lose");
     }
     // input 값 초기화
     setUserNumber("");
