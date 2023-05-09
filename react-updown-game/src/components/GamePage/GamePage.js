@@ -1,37 +1,117 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // game 페이지로 render 하기 위한 useNavigate 사용
+import React from "react";
+import { useNavigate } from "react-router-dom"; // reset시 LoadingPage로 render 하기 위한 useNavigate 사용
 import "./GamePage.css";
+import UserChance from "../UserChance/UserChance";
 
-function GamePage() {
-  const [userNumber, setUserNumber] = useState("");
+function GamePage({
+  computerNumber,
+  setComputerNumber,
+  record,
+  setRecord,
+  chances,
+  setChances,
+  userNumber,
+  setUserNumber,
+  message,
+  setMessage,
+}) {
   const navigate = useNavigate();
 
+  // userNumber가 정상적인 범위에 있도록 관리하는 함수 (숫자가 아니면 입력받지 않고, 1-100사이의 숫자만 받도록 함)
+  // userNumber를 문자열로 저장하기 때문에 추후 정답과 비교 로직에서 문자열로 변환 필요
   const handleInputChange = (e) => {
     const input = e.target.value;
-    setUserNumber(input.replace(/[^0-9]/g, "")); // input type이 string이기 때문에 정규식으로 숫자로 바꿈
+    // parseInt 메서드로 text를 정수형으로 변환, 값이 NaN일 경우 빈 문자열로 처리
+    const number = parseInt(input.replace(/[^0-9]/g, "")) || ""; // 정규식을 사용하여 숫자를 제외한 문자열을 빈 문자열 처리
+
+    if (number > 100) {
+      setUserNumber("100");
+    } else if (number < 1) {
+      setUserNumber("");
+    } else {
+      setUserNumber(number.toString());
+    }
   };
 
-  const startGame = () => {
-    if (userNumber === null) {
-      alert("Please enter a number");
-    } else {
-      navigate(`/game?number=${userNumber}`);
+  // enter키 입력 시 submit 되도록 설정하는 함수
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit(e);
     }
+  };
+
+  // submit 버튼 클릭시 게임 로직 구현
+  const handleSubmit = (e) => {
+    // 페이지 새로고침을 방지
+    e.preventDefault();
+
+    // 위 코드에서 저장된 userNumber 값이 string 타입이기 때문에, 정수형으로 변환해줌
+    const userNumberInt = parseInt(userNumber);
+
+    // 사용자 입력 값과 정답이 다를시 (정답이 크면 업, 작으면 다운)
+    if (userNumberInt !== computerNumber) {
+      if (userNumberInt > computerNumber) {
+        setMessage("Umm.. Down");
+      } else if (userNumberInt < computerNumber) {
+        setMessage("Up ! !");
+      }
+      // 목숨 - 1
+      setChances((cur) => cur - 1);
+      // 사용자 입력 기록 배열에 입력 값 push
+      // 배열이기 때문에 스프레드 연산자 사용하여 복제 후 복제된 배열 변경
+      setRecord((cur) => {
+        const newRecord = [...cur];
+        newRecord.push(userNumber);
+        return newRecord;
+      });
+    } else {
+      // 정답이면 win 페이지로 렌더링
+      navigate("/win");
+    }
+    // 목숨 0이면 lose 페이지로 렌더링
+    if (chances === 1) {
+      navigate("/lose");
+    }
+    // input 값 초기화
+    setUserNumber("");
+  };
+
+  // reset 버튼 누르면 정답, 사용자 값, 목숨 모두 초기화하고 루트 페이지로 렌더링
+  const handleReset = () => {
+    setComputerNumber(Math.floor(Math.random() * 100) + 1);
+    setUserNumber("");
+    setChances(7);
+    setRecord([]);
+    setMessage("");
+    navigate("/");
   };
 
   return (
     <div className="container">
-      <h1>Up-Down Game!</h1>
-      <h3>Rules of Game</h3>
-      <p>1. Choose a number between 1 and 100</p>
-      <p>2. Guess the number</p>
-      <p>3. If your guess is higher than the number, say "Up"</p>
-      <p>4. If your guess is lower than the number, say "Down"</p>
-      <p>5. If your guess is correct, say "Correct!"</p>
-      <p>6. Repeat the process</p>
-      <p>7. If you guess the number in 7 tries, you win!</p>
-      <p>8. If you don't guess the number in 7 tries, you lose!</p>
+      <h1 className="title">Up-Down Game!</h1>
 
+      <div className="userChance">
+        <p>
+          Your Chance:
+          {/* 길이가 7인 빈 배열을 만들어 각 요소에 하트를 넣음 */}
+          {/* 하트를 표시하는 UserChance 컴포넌트를 사용하여 index 0 부터 6 까지 총 7개의 하트를 표시하게 함 */}
+          {Array.from({ length: 7 }).map((_, index) => (
+            <UserChance key={index} chance={index < chances} />
+          ))}
+        </p>
+      </div>
+      <div className="userRecord">
+        <p>
+          Your Record:
+          {record.map((value, index) => {
+            return <span key={index}>{value + " "}</span>;
+          })}
+        </p>
+      </div>
+      <div>
+        <p className="message">{message}</p>
+      </div>
       <input
         className="input"
         placeholder="Please enter a number from 1 to 100"
@@ -39,10 +119,21 @@ function GamePage() {
         onChange={handleInputChange}
         maxLength="3"
         type="text"
+        onKeyPress={handleKeyPress} // 왜 밑줄 그어지지 ?
       />
-      <button className="start" onClick={startGame}>
-        Start
-      </button>
+      <div className="buttonContainer">
+        <button
+          className="submit"
+          type="submit"
+          disabled={!userNumber}
+          onClick={handleSubmit}
+        >
+          Submit
+        </button>
+        <button className="reset" onClick={handleReset}>
+          Reset
+        </button>
+      </div>
     </div>
   );
 }
