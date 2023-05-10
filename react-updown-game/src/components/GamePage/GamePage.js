@@ -49,31 +49,31 @@ function GamePage({
     // 위 코드에서 저장된 userNumber 값이 string 타입이기 때문에, 정수형으로 변환해줌
     const userNumberInt = parseInt(userNumber);
 
-    // 사용자 입력 값과 정답이 다를시 (정답이 크면 업, 작으면 다운)
-    if (userNumberInt !== computerNumber) {
+    // 사용자 입력 기록 배열에 입력 값 push
+    setRecord((cur) => {
+      const newRecord = [...cur];
+      newRecord.push(userNumber);
+      return newRecord;
+    });
+
+    // 목숨 - 1
+    setChances((cur) => cur - 1);
+
+    // 정답이면 win 페이지로 렌더링
+    if (userNumberInt === computerNumber) {
+      navigate("/win");
+    } else {
+      // 사용자 입력 값과 정답이 다를시 (정답이 크면 업, 작으면 다운)
       if (userNumberInt > computerNumber) {
         setMessage("Umm.. Down");
       } else if (userNumberInt < computerNumber) {
         setMessage("Up ! !");
       }
-      // 목숨 - 1
-      setChances((cur) => cur - 1);
-
-      // 사용자 입력 기록 배열에 입력 값 push
-      // 배열이기 때문에 스프레드 연산자 사용하여 복제 후 복제된 배열 변경
-      setRecord((cur) => {
-        const newRecord = [...cur];
-        newRecord.push(userNumber);
-        return newRecord;
-      });
 
       // 목숨 0이면 lose 페이지로 렌더링
       if (chances === 1) {
         navigate("/lose");
       }
-    } else {
-      // 정답이면 win 페이지로 렌더링
-      navigate("/win");
     }
     // input 값 초기화
     setUserNumber("");

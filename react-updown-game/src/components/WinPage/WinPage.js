@@ -28,11 +28,11 @@ function WinPage({
   };
 
   const result = () => {
-    if (chances === 7) {
+    if (chances === 6) {
       return "👑perfect!!👑";
-    } else if (chances >= 5) {
+    } else if (chances === 5) {
       return "🥳Great!🥳";
-    } else if (chances >= 3) {
+    } else if (chances < 5 && chances >= 3) {
       return "😆Good!😆";
     } else {
       return "🤔Umm.. Let's try again!🤔";
