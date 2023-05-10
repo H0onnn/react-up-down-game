@@ -1,5 +1,5 @@
-import React from "react";
-import { useNavigate } from "react-router-dom"; // reset시 LoadingPage로 render 하기 위한 useNavigate 사용
+import React, { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom"; // reset시 LoadingPage로 render 하기 위한 useNavigate 사용, LoadingPage에서 설정한 난이도를 state로 받아오기 위해 useLocation 사용
 import "./GamePage.css";
 import UserChance from "../UserChance/UserChance";
 
@@ -16,6 +16,28 @@ function GamePage({
   setMessage,
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const difficulty = location.state.difficulty;
+
+  // 난이도에 따른 목숨 설정
+  useEffect(() => {
+    let chancesByDifficulty;
+    switch (difficulty) {
+      case "easy":
+        chancesByDifficulty = 12;
+        break;
+      case "normal":
+        chancesByDifficulty = 7;
+        break;
+      case "hard":
+        chancesByDifficulty = 5;
+        break;
+      default:
+        chancesByDifficulty = 7;
+        break;
+    }
+    setChances(chancesByDifficulty);
+  }, [difficulty, setChances]);
 
   // userNumber가 정상적인 범위에 있도록 관리하는 함수 (숫자가 아니면 입력받지 않고, 1-100사이의 숫자만 받도록 함)
   // userNumber를 문자열로 저장하기 때문에 추후 정답과 비교 로직에서 문자열로 변환 필요
@@ -61,7 +83,7 @@ function GamePage({
 
     // 정답이면 win 페이지로 렌더링
     if (userNumberInt === computerNumber) {
-      navigate("/win");
+      navigate("/win", { state: { difficulty } });
     } else {
       // 사용자 입력 값과 정답이 다를시 (정답이 크면 업, 작으면 다운)
       if (userNumberInt > computerNumber) {
@@ -96,21 +118,24 @@ function GamePage({
       <div className="userChance">
         <p>
           Your Chance:
-          {/* 길이가 7인 빈 배열을 만들어 각 요소에 하트를 넣음 */}
-          {/* 하트를 표시하는 UserChance 컴포넌트를 사용하여 index 0 부터 6 까지 총 7개의 하트를 표시하게 함 */}
-          {Array.from({ length: 7 }).map((_, index) => (
+          {/* 길이가 12인 빈 배열을 만들어 각 요소에 하트를 넣음 */}
+          {/* 난이도에 따라 최대 12개에서 5개의 하트를 생성 */}
+          {Array.from({ length: 12 }).map((_, index) => (
             <UserChance key={index} chance={index < chances} />
           ))}
         </p>
       </div>
-      <div className="userRecord">
-        <p>
-          Your Record:
-          {record.map((value, index) => {
-            return <span key={index}>{value + " "}</span>;
-          })}
-        </p>
-      </div>
+      {/* 난이도가 hard일 경우 youe record 표시 안함 */}
+      {difficulty !== "hard" && (
+        <div className="userRecord">
+          <p>
+            Your Record:
+            {record.map((value, index) => {
+              return <span key={index}>{value + " "}</span>;
+            })}
+          </p>
+        </div>
+      )}
       <div>
         <p className="message">{message}</p>
       </div>
